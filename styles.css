@@ -310,6 +310,19 @@ h1 {
     display: none;
 }
 
+.git-figure {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    margin: 0;
+}
+
+.git-figure svg {
+    width: 4rem;
+    height: 4rem;
+    fill: var(--color-font-1);
+}
+
 
 
 @media only screen and (max-width: 1400px) {
