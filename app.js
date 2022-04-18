@@ -54,10 +54,42 @@ const utils = (function utils() {
     return mb > 1 ? `${mb.toFixed(2)} MB` : `${kb.toFixed(2)} KB`;
   }
 
+  function getNumberFromVhVw(v) {
+    try {
+      if (typeof v !== "string") return v
+      return parseFloat(v.replace(/[vwh\s]/gi, ''));
+    } catch (err) {}
+  }
+
+  function convertWindowWidthVhToPx(vw) {
+    try {
+      vw = getNumberFromVhVw(vw)
+      return (window.innerWidth * vw) / 100;
+    } catch (error) {
+      return 0;
+    }
+
+  }
+
+  function getImageDimensionsToFitCompareContainer(img) {
+    try {
+      const {innerHeight} = window;
+      const currentContainerWidthInVh = document.querySelector(':root')?.computedStyleMap?.()?.get?.('--container-width')?.[0] ?? 90
+      const containerWidth = convertWindowWidthVhToPx(currentContainerWidthInVh)
+      const _50vh = innerHeight * 0.5;
+      const {naturalHeight = 100, naturalWidth = 100} = img;
+      const ratio = Math.min(containerWidth / naturalWidth, _50vh / naturalHeight);
+      return { width: naturalWidth * ratio, height: naturalHeight * ratio}
+    } catch (err) {
+      return { width: 100, height: 100}
+    }
+  }
+
   return {
     getDomElements,
     debounce,
-    getKbOrMbFromBytes
+    getKbOrMbFromBytes,
+    getImageDimensionsToFitCompareContainer,
   }
 })()
 
@@ -105,10 +137,26 @@ const model = (function model() {
 const view = (function view(model) {
   const DomElements = utils.getDomElements();
 
-  function updateImagesUi() {
-    const { originalFileUrl, compressedFileUrl } = model.getImagesData();
-    DomElements[CONSTANTS.DOM_SELECTORS.ORIGINAL_IMAGE].src = originalFileUrl;
-    DomElements[CONSTANTS.DOM_SELECTORS.COMPRESSED_IMAGE].src = compressedFileUrl;
+  function adjustDimensionsOfImageCompareContainer() {
+    try {
+      const { IMG_COMPARE_CONTAINER, ORIGINAL_IMAGE } = CONSTANTS.DOM_SELECTORS
+      const {width, height} = utils.getImageDimensionsToFitCompareContainer(DomElements[ORIGINAL_IMAGE]);
+      DomElements[IMG_COMPARE_CONTAINER].style.width = `${width}px`
+      DomElements[IMG_COMPARE_CONTAINER].style.height = `${height}px`
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  function updateImagesUi({ imageOnLoadCb = () => {}} = {}) {
+    try {
+      const { originalFileUrl, compressedFileUrl } = model.getImagesData();
+      DomElements[CONSTANTS.DOM_SELECTORS.ORIGINAL_IMAGE].src = originalFileUrl;
+      DomElements[CONSTANTS.DOM_SELECTORS.COMPRESSED_IMAGE].src = compressedFileUrl;
+      DomElements[CONSTANTS.DOM_SELECTORS.ORIGINAL_IMAGE].onload = imageOnLoadCb;
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   function updateCompressionProgress() {
@@ -129,7 +177,7 @@ const view = (function view(model) {
     DomElements[CONSTANTS.DOM_SELECTORS.DOWNLOAD_COMPRESSED_IMAGE_BTN].textContent = `Download Compressed Image (${utils.getKbOrMbFromBytes(compressedFile.size)})`
   }
 
-  return { updateImagesUi, updateCompressionProgress, updateDownloadCompressedBtnText }
+  return { updateImagesUi, updateCompressionProgress, updateDownloadCompressedBtnText, adjustDimensionsOfImageCompareContainer }
 })(model)
 
 const controller = (function controller(model, view) {
@@ -137,6 +185,8 @@ const controller = (function controller(model, view) {
   const DomElements =  utils.getDomElements();
 
   function init() {
+    DomElements[CONSTANTS.DOM_SELECTORS.ORIGINAL_IMAGE].onload = adjustImageCompareContainerOnUpdate
+    window.addEventListener('resize', adjustImageCompareContainerOnUpdate)
     DomElements[CONSTANTS.DOM_SELECTORS.TOGGLE_THEME_BUTTON].addEventListener('click', toggleTheme);
     DomElements[CONSTANTS.DOM_SELECTORS.IMAGE_UPLOAD_INPUT].addEventListener('change', handleImageUpload);
     DomElements[CONSTANTS.DOM_SELECTORS.DOWNLOAD_COMPRESSED_IMAGE_BTN].addEventListener('click', handleDownloadCompressedImage);
@@ -170,7 +220,7 @@ const controller = (function controller(model, view) {
       console.log(`size ${imageFile.size / 1024 / 1024} MB`);
       const imageURL = URL.createObjectURL(imageFile);
       model.setImageData(imageFile, imageURL, imageURL);
-      view.updateImagesUi()
+      view.updateImagesUi({imageOnLoadCb: adjustImageCompareContainerOnUpdate})
       await handleOnCompressionValueChange(model.getCompressionRate().value)
     } catch (err) {
       console.error(err)
@@ -228,6 +278,14 @@ const controller = (function controller(model, view) {
       a.click();
     } catch (error) {
       console.error(error)
+    }
+  }
+
+  function adjustImageCompareContainerOnUpdate() {
+    try {
+      requestAnimationFrame(view.adjustDimensionsOfImageCompareContainer)
+    } catch (err) {
+      console.error(err)
     }
   }
 
