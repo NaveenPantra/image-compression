@@ -11,7 +11,7 @@ function Scrubber({scrubberEle, parentEle, effectorEle, config: { handleClickOnP
     function getSeekPointAndPercentage(event, parentElement) {
       if (!parentElement) return
       const {x: startingXCoordinateOfWaveForm, width: waveFormWidth} = parentElement.getClientRects()[0];
-      const xCoordinateOfMouseClick = event.clientX;
+      const xCoordinateOfMouseClick = event.clientX ?? event.targetTouches?.[0]?.clientX ?? 0;
       let seekPoint = xCoordinateOfMouseClick - startingXCoordinateOfWaveForm;
       if (seekPoint >= waveFormWidth) seekPoint = waveFormWidth;
       if (seekPoint <= 0) seekPoint = 0;
@@ -98,8 +98,11 @@ function Scrubber({scrubberEle, parentEle, effectorEle, config: { handleClickOnP
         if (!scrubberEle || !parentEle || !effectorEle) throw CONSTANTS.ERRORS.SCRUBBER_PARENT_AND_EFFECTOR_REQUIRED;
         model.setElements(scrubberEle, parentEle, effectorEle);
         scrubberEle.addEventListener('mousedown', handleMouseDownOnScrubber);
+        scrubberEle.addEventListener('touchstart', handleMouseDownOnScrubber);
         scrubberEle.addEventListener('mouseup', handleMouseUpOnScrubber);
+        scrubberEle.addEventListener('touchend', handleMouseUpOnScrubber);
         parentEle.addEventListener('mousemove', handleMouseMoveOnScrubberParent);
+        parentEle.addEventListener('touchmove', handleMouseMoveOnScrubberParent);
         parentEle.addEventListener('mouseleave', handleMouseLeaveOnScrubberParent);
         if (handleClickOnParent) parentEle.addEventListener('click', handleClickOnScrubberParent);
       } catch (error) {
@@ -118,6 +121,7 @@ function Scrubber({scrubberEle, parentEle, effectorEle, config: { handleClickOnP
     function handleMouseMoveOnScrubberParent(event) {
       try {
         if (!model.getMouseDownOnScrubber()) return
+        if (event instanceof TouchEvent) event.preventDefault();
         requestAnimationFrame(() => {
           const {parent} = model.getElements();
           const {seekPoint, seekPercentage} = utils.getSeekPointAndPercentage(event, parent);
