@@ -1,3 +1,7 @@
+if (!window.TouchEvent) {
+  window.TouchEvent = function TouchEvent() {}
+}
+
 function Scrubber({scrubberEle, parentEle, effectorEle, config: { handleClickOnParent = false, onValueChange = () => {} } = {} } = {}) {
   const CONSTANTS = {
     ERRORS: {
