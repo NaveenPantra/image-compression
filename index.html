@@ -29,7 +29,39 @@
         <section class="img-compare-container">
             <img draggable="false" src="./images/original.jpeg" alt="original" class="original-image"/>
             <img draggable="false" src="./images/compressed.jpg" alt="compressed" class="compressed-image" />
-            <div class="img-compare-scrubber"></div>
+            <div class="img-compare-scrubber">
+                <div class="chevron-container">
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="ionicon"
+                            viewBox="0 0 512 512"
+                            width="20px"
+                            height="auto">
+                        <path
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="48" d="M328 112L184 256l144 144" />
+                    </svg>
+
+                    <div class="chevron-line"></div>
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="ionicon"
+                            viewBox="0 0 512 512"
+                            width="20px"
+                            height="auto">
+                        <path
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="48"
+                                d="M184 112l144 144-144 144" />
+                    </svg>
+                </div>
+            </div>
             <span class="img-compression-progress hide">
                 <svg  viewBox="0 0 100 100" width="50" height="50" fill="red">
                     <circle class="img-compression-progress-outer-circle" cx="50" cy="50" r="42" />
