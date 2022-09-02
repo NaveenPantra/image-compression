@@ -60,6 +60,10 @@ h1 {
     font-weight: 600;
 }
 
+a {
+    display: inline-block;
+}
+
 .theme-toggle {
     display: block;
     position: fixed;
@@ -344,6 +348,8 @@ h1 {
     bottom: 2rem;
     right: 2rem;
     margin: 0;
+    display: flex;
+    gap: 1rem;
 }
 
 .git-figure svg {
