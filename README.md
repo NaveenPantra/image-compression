@@ -1,5 +1,5 @@
 # img-compress/compare
-### Live URL: https://imagecompression.netlify.app/
+### Live URL: https://www.imagecompression.tech/
 > Compress and compare your images in your machine.
 ### Screenshot
 |Dark|Light|
