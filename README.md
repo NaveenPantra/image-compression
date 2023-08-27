@@ -1,6 +1,6 @@
 # img-compress/compare
-### Live URL: https://www.imagecompression.tech/
-> Compress and compare your images in your machine.
+### Live URL: https://naveenpantra.github.io/image-compression/ _**or**_ https://www.imagecompression.tech/
+> Compress and compare your images on your machine.
 ### Screenshot
 |Dark|Light|
 |-|-|
